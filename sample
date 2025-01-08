@@ -1,0 +1,13 @@
+@isTest
+    static void testAccOppActiveStageHandler(){
+        Test.startTest();
+        List<Account> accListTest5 = [SELECT Id ,Name, Active__c FROM Account WHERE Name = 'Test6'];
+        accListTest5[0].Active__c = 'No';
+        update accListTest5;
+        List<Opportunity> oppList1 = [SELECT Name, StageName, CloseDate FROM Opportunity WHERE AccountId = :accListTest5[0].Id];
+        Map<Id, Account> oldAccMap = new Map<Id, Account>([SELECT Id, Active__c FROM Account WHERE Name = 'Test6']);
+        AccountHandler.AccOppActiveStageHandler(accListTest5, oldAccMap);
+        Test.stopTest();
+        List<Opportunity> updatedOppList = [SELECT Id, StageName FROM Opportunity WHERE  AccountId = :accListTest5[0].Id];
+        System.assertEquals('Closed Lost', updatedOppList[0].StageName, 'does not match');
+    }
